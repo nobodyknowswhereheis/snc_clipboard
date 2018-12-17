@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_script">
+    <sys_script action="INSERT_OR_UPDATE">
+        <abort_action>false</abort_action>
+        <access>package_private</access>
+        <action_delete>false</action_delete>
+        <action_insert>false</action_insert>
+        <action_query>false</action_query>
+        <action_update>true</action_update>
+        <active>true</active>
+        <add_message>false</add_message>
+        <advanced>true</advanced>
+        <change_fields>false</change_fields>
+        <client_callable>false</client_callable>
+        <collection>x_snc_cl_clipboard_clipboard</collection>
+        <condition>current.sys_mod_count &gt;= gs.getProperty('x_snc_cl_clipboard.clipboard.max_entries',200)</condition>
+        <description/>
+        <execute_function>false</execute_function>
+        <filter_condition table="x_snc_cl_clipboard_clipboard">active=true^EQ<item endquery="false" field="active" goto="false" newquery="false" operator="=" or="false" value="true"/>
+            <item endquery="true" field="" goto="false" newquery="false" operator="=" or="false" value=""/>
+        </filter_condition>
+        <is_rest>false</is_rest>
+        <message/>
+        <name>Archive clipboard &amp; recreate</name>
+        <order>1000</order>
+        <priority>100</priority>
+        <rest_method/>
+        <rest_method_text/>
+        <rest_service/>
+        <rest_service_text/>
+        <rest_variables/>
+        <role_conditions/>
+        <script><![CDATA[(function executeRule(current, previous /*null when async*/) {
+
+	// Create a new clipboard for the user
+	var gr = new GlideRecord('x_snc_cl_clipboard_clipboard');
+	gr.newRecord();
+	gr.owner = current.owner;
+	gr.active = true;
+	gr.content = current.content.getJournalEntry(1) || "";
+	
+	gr.insert();
+	
+	// archive the old one (active=false)
+	current.active = false;
+	current.content = "Archiving clipboard due to maximum data limit.";
+	current.update();
+
+})(current, previous);]]></script>
+        <sys_class_name>sys_script</sys_class_name>
+        <sys_created_by>jesse.adams</sys_created_by>
+        <sys_created_on>2018-12-17 16:06:22</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>0861ce3fdb5a2700f51ef3c61d96191a</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>Archive clipboard &amp; recreate</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="Cloud Clipboard" source="x_snc_cl_clipboard">7e2479f3db5a2700f51ef3c61d9619cc</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cloud Clipboard">7e2479f3db5a2700f51ef3c61d9619cc</sys_scope>
+        <sys_update_name>sys_script_0861ce3fdb5a2700f51ef3c61d96191a</sys_update_name>
+        <sys_updated_by>jesse.adams</sys_updated_by>
+        <sys_updated_on>2018-12-17 16:10:49</sys_updated_on>
+        <template/>
+        <when>after</when>
+    </sys_script>
+    <sys_translated_text action="delete_multiple" query="documentkey=0861ce3fdb5a2700f51ef3c61d96191a"/>
+</record_update>
