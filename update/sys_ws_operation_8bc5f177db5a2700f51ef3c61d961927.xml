@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json,application/xml,text/xml</consumes>
+        <consumes_customized>false</consumes_customized>
+        <default_operation_uri/>
+        <enforce_acl>cf9d01d3e73003009d6247e603f6a990</enforce_acl>
+        <http_method>GET</http_method>
+        <name>get/</name>
+        <operation_script><![CDATA[(function process( /*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+
+  // implement resource here
+  var uid = request.queryParams.user;
+	
+  try {
+    if (!uid) {
+      throw new sn_ws_err.BadRequestError('ERROR: No user specified.');
+    }
+    var user = new GlideRecord('sys_user');
+    user.addQuery('user_name', uid);
+    user.query();
+    if (user.hasNext()) {
+      while (user.next()) {
+        var gr = new GlideRecord('x_snc_cl_clipboard_clipboard');
+        gr.addQuery('active', true);
+        gr.addQuery('owner', user.sys_id);
+        gr.query();
+        if (gr.hasNext()) {
+          while (gr.next()) {
+			  var body = {};
+			  // get the most recent journal entry
+            var str = gr.content.getJournalEntry(1) || "";
+			  // strip out everything we don't need
+			body.content = str.substring(str.indexOf("\n")+1, str.length-2);
+
+            response.setContentType('application/json');
+            return response.setBody(body);
+          }
+        } else {
+          throw new sn_ws_err.BadRequestError('ERROR: The provided user does not have a clipboard saved.');
+        }
+      }
+    } else
+      throw new sn_ws_err.BadRequestError('ERROR: The provided user does not exist.');
+  } catch (e) {
+    return response.setError(e);
+  }
+
+})(request, response);]]></operation_script>
+        <operation_uri>/api/x_snc_cl_clipboard/clipboard</operation_uri>
+        <produces>application/json,application/xml,text/xml</produces>
+        <produces_customized>false</produces_customized>
+        <relative_path>/</relative_path>
+        <request_example/>
+        <requires_acl_authorization>true</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <requires_snc_internal_role>true</requires_snc_internal_role>
+        <short_description>Fetch latest data sent to clipboard</short_description>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_created_by>jesse.adams</sys_created_by>
+        <sys_created_on>2018-12-17 15:13:51</sys_created_on>
+        <sys_id>8bc5f177db5a2700f51ef3c61d961927</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>get/</sys_name>
+        <sys_package display_value="Cloud Clipboard" source="x_snc_cl_clipboard">7e2479f3db5a2700f51ef3c61d9619cc</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Cloud Clipboard">7e2479f3db5a2700f51ef3c61d9619cc</sys_scope>
+        <sys_update_name>sys_ws_operation_8bc5f177db5a2700f51ef3c61d961927</sys_update_name>
+        <sys_updated_by>jesse.adams</sys_updated_by>
+        <sys_updated_on>2018-12-17 15:13:51</sys_updated_on>
+        <web_service_definition display_value="Clipboard">64a57177db5a2700f51ef3c61d961903</web_service_definition>
+        <web_service_version/>
+    </sys_ws_operation>
+</record_update>
